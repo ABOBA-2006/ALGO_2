@@ -57,7 +57,7 @@ def graph_coloring(graph, colors):
 
 
 my_graph = build_graph(regions, edges)
-my_colors = ['Red', 'Green', 'Blue', 'Yellow']
+my_colors = ['Red', 'Green', 'Blue']
 
 solution = graph_coloring(my_graph, my_colors)
 if solution:
