@@ -2,6 +2,10 @@ import random
 import folium
 from map_creating import regions, edges
 
+iterations = 0
+stucks = 0
+stan_generated = 0
+
 def build_graph(_regions, _edges):
     graph = {region: [] for region in _regions}
     for edge in _edges:
@@ -41,6 +45,7 @@ def select_node_mrv(graph, colors, num_colors):
 
 
 def hill_climbing(graph, num_colors, max_side_steps=100):
+    global iterations, stan_generated
     colors = {node: random.randint(0, num_colors - 1) for node in graph}
     current_conflicts = count_conflicts(graph, colors)
 
@@ -51,6 +56,7 @@ def hill_climbing(graph, num_colors, max_side_steps=100):
             break  #if no more conflicts
 
         for color in range(num_colors):
+            iterations += 1
             if not has_conflict(graph, colors, node, color):
                 previous_color = colors[node]
                 colors[node] = color
@@ -59,6 +65,7 @@ def hill_climbing(graph, num_colors, max_side_steps=100):
                 if new_conflicts < current_conflicts:
                     current_conflicts = new_conflicts
                     side_steps = 0
+                    stan_generated += 1
                 else:
                     colors[node] = previous_color
         side_steps += 1
@@ -67,7 +74,9 @@ def hill_climbing(graph, num_colors, max_side_steps=100):
 
 
 def random_restart_hill_climbing(graph, num_colors, max_side_steps=100, max_restarts=10000):
+    global stucks
     for i in range(max_restarts):
+        stucks = i
         result = hill_climbing(graph, num_colors, max_side_steps)
         if result is not None:
             return result
@@ -75,14 +84,14 @@ def random_restart_hill_climbing(graph, num_colors, max_side_steps=100, max_rest
 
 
 my_graph = build_graph(regions, edges)
-# my_colors = {0:'Red', 1:'Green', 2:'Blue', 3:'Black', 4:'Purple'}
-# my_num_colors = 5
+my_colors = {0:'Red', 1:'Green', 2:'Blue', 3:'Black', 4:'Purple'}
+my_num_colors = 5
 # my_colors = {0:'Red', 1:'Green', 2:'Blue', 3:'Black'}
 # my_num_colors = 4
 # my_colors = {0:'Red', 1:'Green', 2:'Blue'}
 # my_num_colors = 3
-my_colors = {0:'Red', 1:'Green', 2:'Blue',  3:'Black', 4:'Purple', 5:'Brown'}
-my_num_colors = 6
+# my_colors = {0:'Red', 1:'Green', 2:'Blue',  3:'Black', 4:'Purple', 5:'Brown'}
+# my_num_colors = 6
 solution = random_restart_hill_climbing(my_graph, my_num_colors)
 
 if solution:
@@ -109,3 +118,5 @@ if solution:
 else:
     print("NO SOLUTION")
     exit(0)
+
+print(iterations, stucks, stan_generated)

@@ -1,6 +1,10 @@
 import folium
+import random
 from map_creating import regions, edges
 
+iterations = 0
+stucks = 0
+avg_assignment_length = 0
 
 def build_graph(_regions, _edges):
     graph = {region: [] for region in _regions}
@@ -35,6 +39,7 @@ def select_unassigned_variable_mrv(graph, assignment, colors):
 
 
 def backtrack(graph, colors, assignment):
+    global iterations, stucks, avg_assignment_length
     if len(assignment) == len(graph):
         return assignment
 
@@ -44,20 +49,25 @@ def backtrack(graph, colors, assignment):
 
     for color in find_available_colors(node, graph, colors, assignment):
         assignment[node] = color
+        avg_assignment_length += len(assignment)
+        iterations += 1
         result = backtrack(graph, colors, assignment)
         if result:
             return result
+        stucks += 1
         del assignment[node]
     return None
 
 
 def graph_coloring(graph, colors):
     my_assignment = {}
+    random_edge =  random.choice(list(regions.keys()))
+    my_assignment[random_edge] = random.choice(colors)
     return backtrack(graph, colors, my_assignment)
 
 
 my_graph = build_graph(regions, edges)
-my_colors = ['Red', 'Green', 'Blue']
+my_colors = ['Red', 'Green', 'Blue', 'Purple']
 
 solution = graph_coloring(my_graph, my_colors)
 if solution:
@@ -84,3 +94,5 @@ if solution:
 else:
     print("NO SOLUTION")
     exit(0)
+
+print(iterations, stucks, avg_assignment_length/iterations)
